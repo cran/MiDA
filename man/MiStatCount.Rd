@@ -14,10 +14,10 @@ and each column correspondes to a specimen (patient).}
 }
 \value{
 a data frame containing for each probe: mean and sd values for both groups, difference of means,
-p-value for T-test and q-value for FDR correction.
+p-value for T-test and q-value for FDR (False Discovery Rate) correction.
 }
 \description{
-Performs descriptive statistics and FDR test for microarray expression matrix
+Performs descriptive statistics and FDR (False Discovery Rate) test for microarray expression matrix
 }
 \details{
 This function takes matrix of expression data and performs T-test with FDR correction for two groups

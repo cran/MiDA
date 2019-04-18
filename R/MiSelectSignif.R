@@ -10,13 +10,16 @@
 #'"absolute" (mean1-mean2),
 #'"percent" ((mean1*100/mean2)-100),
 #'"ratio" (mean1/ mean2),
-#'"Log2.ratio" (log2(mean1-mean2)).
+#'"Log2.ratio" (log2(mean1/mean2)).
 #'@param infl numeric vector of mean values for probes feature importance (relative influence) from binary classification.
 #'@param stat.val numeric vector of statistical significance (p-value, q-value) for testing differences
 #' of \code{mean1} and \code{mean2}.
-#'@param tresh.FC numeric from o to 1 specifying the tresh hold for fold change \code{FC} parameters (quantile).
-#'@param tresh.infl numeric from o to 1 specifying the tresh hold for feature importance \code{infl} parameters (quantile).
-#'@param tresh.stat numeric from o to 1 specifying the tresh hold for statistical significance \code{stat.val}.
+#'@param tresh.FC numeric from o to 1 specifying the tresh hold for fold change \code{FC} parameters (quantile).The significant
+#'fold change is bigger than \code{tresh.FC}.
+#'@param tresh.infl numeric from o to 1 specifying the tresh hold for feature importance \code{infl} parameters (quantile).The significant
+#'feature importance is bigger than \code{tresh.infl}.
+#'@param tresh.stat numeric from o to 1 specifying the tresh hold for statistical significance \code{stat.val}.The significant
+#'fold change is lesser than \code{tresh.stat}.
 #'
 #'@details The order must be the same for all parameters.
 #'\cr
@@ -48,7 +51,7 @@ MiSelectSignif <- function(probes, mean1, mean2, FC.method, infl, stat.val,
   if (FC.method == "absolute"){FC<-mean1-mean2; FC.name<-"FC.diff.means"} # count fold change for all methods
   if (FC.method == "percent"){FC<-(mean1*100/mean2)-100; FC.name<-"FC.percents"}
   if (FC.method == "ratio"){FC<-mean1/mean2; FC.name<-"FC.mean.ratio"}
-  if (FC.method == "Log2.ratio"){FC<-log2(mean1-mean2); FC.name<-"FC.Log2.ratio"}
+  if (FC.method == "Log2.ratio"){FC<-log2(mean1/mean2); FC.name<-"FC.Log2.ratio"}
   treshFC <- stats::quantile(abs(FC), tresh.FC) #treshholds
   treshInf <- stats::quantile(infl, tresh.infl)
   marker <- c(); tresh <- c()

@@ -1,6 +1,6 @@
 #' FDR for microarray gene expression data
 #'
-#' Performs descriptive statistics and FDR test for microarray expression matrix
+#' Performs descriptive statistics and FDR (False Discovery Rate) test for microarray expression matrix
 #'
 #'@param Matrix numeric matrix of expression data where each row corresponds to a probe (gene, transcript),
 #'  and each column correspondes to a specimen (patient).
@@ -13,7 +13,7 @@
 #' See \code{\link{rowttests}} for details.
 #'
 #'@return a data frame containing for each probe: mean and sd values for both groups, difference of means,
-#'p-value for T-test and q-value for FDR correction.
+#'p-value for T-test and q-value for FDR (False Discovery Rate) correction.
 
 #'
 #' @examples

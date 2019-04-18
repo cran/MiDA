@@ -18,18 +18,21 @@ MiSelectSignif(probes, mean1, mean2, FC.method, infl, stat.val,
 "absolute" (mean1-mean2),
 "percent" ((mean1*100/mean2)-100),
 "ratio" (mean1/ mean2),
-"Log2.ratio" (log2(mean1-mean2)).}
+"Log2.ratio" (log2(mean1/mean2)).}
 
 \item{infl}{numeric vector of mean values for probes feature importance (relative influence) from binary classification.}
 
 \item{stat.val}{numeric vector of statistical significance (p-value, q-value) for testing differences
 of \code{mean1} and \code{mean2}.}
 
-\item{tresh.FC}{numeric from o to 1 specifying the tresh hold for fold change \code{FC} parameters (quantile).}
+\item{tresh.FC}{numeric from o to 1 specifying the tresh hold for fold change \code{FC} parameters (quantile).The significant
+fold change is bigger than \code{tresh.FC}.}
 
-\item{tresh.infl}{numeric from o to 1 specifying the tresh hold for feature importance \code{infl} parameters (quantile).}
+\item{tresh.infl}{numeric from o to 1 specifying the tresh hold for feature importance \code{infl} parameters (quantile).The significant
+feature importance is bigger than \code{tresh.infl}.}
 
-\item{tresh.stat}{numeric from o to 1 specifying the tresh hold for statistical significance \code{stat.val}.}
+\item{tresh.stat}{numeric from o to 1 specifying the tresh hold for statistical significance \code{stat.val}.The significant
+fold change is lesser than \code{tresh.stat}.}
 }
 \value{
 data frame of probe names, their fold change values, statistical significance values,

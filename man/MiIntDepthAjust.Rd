@@ -5,7 +5,8 @@
 \title{Ajust maximum depth parameter for fitting  generalized boosted regression models}
 \usage{
 MiIntDepthAjust(Matrix, specimens, test.frac = 5, times = 5,
-  ntrees = 1000, shrinkage = 0.1, intdepth = c(1:4))
+  ntrees = 1000, shrinkage = 0.1, intdepth = c(1:4),
+  n.terminal = 10, bag.frac = 0.5)
 }
 \arguments{
 \item{Matrix}{numeric matrix of expression data where each row corresponds to a probe (gene, transcript),
@@ -22,6 +23,10 @@ and each column correspondes to a specimen (patient).}
 \item{shrinkage}{numeric specifying the learning rate. Scales the step size in the gradient descent procedure.}
 
 \item{intdepth}{vector of integers specifying the maximum depth of each tree. The tested parameter.}
+
+\item{n.terminal}{integer specifying the actual minimum number of observations in the terminal nodes of the trees.}
+
+\item{bag.frac}{the fraction of the training set observations randomly selected to propose the next tree in the expansion.}
 }
 \value{
 list of 2
@@ -42,12 +47,17 @@ over desicion trees.
 \code{test.frac} defines fraction of specimens that will be used for model testing. For example, if
 \code{test.frac}=5 then 4/5th of specimens will be used for model fitting (train data) and 1/5th of specimens
 will be used for model testing (test data). Specimens for test and train data will be selected by random.
-So with \code{times}>1 train and test data will differ each time.
+So with \code{times}>1, train and test data will differ each time.
 \cr
 While boosting basis functions are iteratively adding in a greedy fashion
 so that each additional basis function further reduces the selected loss function.
 Gaussian distribution (squared error) is used.
 \code{ntrees}, \code{shrinkage}, \code{intdeep} are parameters for model tuning.
+\code{bag.frac} introduces randomnesses into the model fit.
+If \code{bag.frac} < 1 then running the same model twice will result in similar but different fits.
+Number of specimens in train sample must be enough to provide the minimum number of observations in terminal nodes.I.e.
+\cr(1-1/\code{test.frac})*\code{bag.frac} > \code{n.terminal}.
+\cr
 See \code{\link{gbm}} for details.
 \cr
 Use \code{\link{MiNTreesAjust}} and \code{\link{MiShrinkAjust}} for ajusting other parameters.

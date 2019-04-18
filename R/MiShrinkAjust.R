@@ -12,17 +12,24 @@
 #'@param shrinkage numeric vector specifying the learning rate.
 #'Scales the step size in the gradient descent procedure. The tested parameter.
 #'@param intdepth vinteger specifying the maximum depth of each tree.
+#'@param n.terminal integer specifying the actual minimum number of observations in the terminal nodes of the trees.
+#'@param bag.frac the fraction of the training set observations randomly selected to propose the next tree in the expansion.
 #'
 #'@details
 #'\code{test.frac} defines fraction of specimens that will be used for model testing. For example, if
 #'\code{test.frac}=5 then 4/5th of specimens will be used for model fitting (train data) and 1/5th of specimens
 #' will be used for model testing (test data). Specimens for test and train data will be selected by random.
-#'So with \code{times}>1 train and test data will differ each time.
+#'So with \code{times}>1, train and test data will differ each time.
 #'\cr
 #'While boosting basis functions are iteratively adding in a greedy fashion
 #'so that each additional basis function further reduces the selected loss function.
 #'Gaussian distribution (squared error) is used.
 #'\code{ntrees}, \code{shrinkage}, \code{intdeep} are parameters for model tuning.
+#'\code{bag.frac} introduces randomnesses into the model fit.
+#'If \code{bag.frac} < 1 then running the same model twice will result in similar but different fits.
+#'Number of specimens in train sample must be enough to provide the minimum number of observations in terminal nodes.I.e.
+#'\cr(1-1/\code{test.frac})*\code{bag.frac} > \code{n.terminal}.
+#'\cr
 #'See \code{\link{gbm}} for details.
 #'\cr
 #'Use \code{\link{MiIntDepthAjust}} and \code{\link{MiNTreesAjust}} for ajusting other parameters.
@@ -62,7 +69,8 @@
 #'@export
 
 MiShrinkAjust <- function(Matrix, specimens, test.frac = 5, times = 5,
-                        ntrees = 1000, shrinkage = c(0.001, 0.01, 0.1), intdepth = 2){
+                        ntrees = 1000, shrinkage = c(0.001, 0.01, 0.1), intdepth = 2,
+                        n.terminal=10, bag.frac=0.5){
   Data <- as.data.frame(t(Matrix))
   accur.train.data <- data.frame(); accur.test.data <- data.frame()
   for(j in 1:times) {
@@ -73,7 +81,8 @@ MiShrinkAjust <- function(Matrix, specimens, test.frac = 5, times = 5,
     accur.train <- c(); accur.test <- c();
     for (i in 1:length(shrinkage)){
       Model <- gbm::gbm(train.group~., train.data, distribution = "gaussian",
-                 n.trees = ntrees, shrinkage = shrinkage[i], interaction.depth = intdepth)
+                 n.trees = ntrees, shrinkage = shrinkage[i], interaction.depth = intdepth,
+                 n.minobsinnode = n.terminal, bag.fraction = bag.frac)
       Pred <- stats::predict(Model, test.data, n.trees = ntrees)
       Pred <- round(Pred); Pred <- factor(Pred, levels = c(1,2), labels = levels(train.group))
       accur.test[i] <- 1-mean(test.group != Pred) # Accuracy
@@ -92,7 +101,7 @@ MiShrinkAjust <- function(Matrix, specimens, test.frac = 5, times = 5,
   accur.test.data <- rbind(accur.test.data, accur.test.median)
   rownames(accur.test.data)<-c(paste("Trial", 1:times, sep=""), "Median")
   shrink.res <- list("train.accuracy" = accur.train.data, "test.accuracy" = accur.test.data) # result data
-  graphics::plot( x=shrinkage, y=c(0.2, 1.2), type = "n", xlab = "Learning rate / Shrinkage", ylab = "Accuracy")#plot
+  graphics::plot( x=shrinkage, y=seq(from=0.2, to=1.2, length=length(shrinkage)), type = "n", xlab = "Learning rate / Shrinkage", ylab = "Accuracy")#plot
   graphics::lines(shrinkage, accur.train.median, type = "o", col = 4, lwd = 1.8)
   graphics::lines(shrinkage, accur.test.median, type = "o", col = 2, lwd = 1.8)
   graphics::legend(x = "topright", legend = c("Train", "Test"), col = c(4,2), pch = 1)

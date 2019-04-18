@@ -12,7 +12,8 @@
 #'@param ntrees integer specifying the total number of decision trees (boosting iterations).
 #'@param shrinkage numeric specifying the learning rate. Scales the step size in the gradient descent procedure.
 #'@param intdepth integer specifying the maximum depth of each tree.
-#'
+#'@param n.terminal integer specifying the actual minimum number of observations in the terminal nodes of the trees.
+#'@param bag.frac the fraction of the training set observations randomly selected to propose the next tree in the expansion.
 #'
 #'@details
 #'\code{Matrix} must contain specimens from two classification groups only. To sample expression matrix
@@ -29,6 +30,11 @@
 #'so that each additional basis function further reduces the selected loss function.
 #'Gaussian distribution (squared error) is used.
 #'\code{ntrees}, \code{shrinkage}, \code{intdepth} are parameters for model tuning.
+#'\code{bag.frac} introduces randomnesses into the model fit.
+#'If \code{bag.frac} < 1 then running the same model twice will result in similar but different fits.
+#'Number of specimens in train sample must be enough to provide the minimum number of observations in terminal nodes.I.e.
+#'\cr(1-1/\code{n.crossval})*\code{bag.frac} > \code{n.terminal}.
+#'\cr
 #'See \code{\link{gbm}} for details.
 #'
 #'@return list of 2:
@@ -74,7 +80,8 @@
 #'
 #' @export
 
-MiBiClassGBODT <- function(Matrix, specimens, n.crossval=5, ntrees=10000, shrinkage=0.1, intdepth=2){
+MiBiClassGBODT <- function(Matrix, specimens, n.crossval=5, ntrees=10000, shrinkage=0.1, intdepth=2,
+                           n.terminal=10, bag.frac=0.5){
   myF1Score <- function(actual, predicted){ #F1Score count. Positive is factor of higher level (first in alphabetical order)
     param <- levels(actual)
     TP <- sum(actual == param[1] & predicted == param[1])
@@ -100,7 +107,8 @@ MiBiClassGBODT <- function(Matrix, specimens, n.crossval=5, ntrees=10000, shrink
   idx <- caret::createFolds(specimens, k = n.crossval) # specimens for cross-validation
   for (i in 1:n.crossval){
     Model <- gbm::gbm(specimens[-idx[[i]]]~., datakross[-idx[[i]],], distribution = "gaussian",
-               n.trees = ntrees, shrinkage = shrinkage, interaction.depth = intdepth) # Model
+               n.trees = ntrees, shrinkage = shrinkage, interaction.depth = intdepth,
+               n.minobsinnode = n.terminal, bag.fraction = bag.frac) # Model
     infltest[[i]] <- summary(Model) # influence of parameters
     Pred <- stats::predict(Model, datakross[idx[[i]],], n.trees = ntrees)
     Pred <- round(Pred); Pred <- factor(Pred, levels = c(1,2), labels = levels(specimens)) # turn prediction from number to factor

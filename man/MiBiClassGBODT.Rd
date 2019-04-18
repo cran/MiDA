@@ -5,7 +5,7 @@
 \title{Binary classification using gradient boosting over desicion trees}
 \usage{
 MiBiClassGBODT(Matrix, specimens, n.crossval = 5, ntrees = 10000,
-  shrinkage = 0.1, intdepth = 2)
+  shrinkage = 0.1, intdepth = 2, n.terminal = 10, bag.frac = 0.5)
 }
 \arguments{
 \item{Matrix}{numeric matrix of expression data where each row corresponds to a probe (gene, transcript),
@@ -20,6 +20,10 @@ and each column correspondes to a specimen (patient).}
 \item{shrinkage}{numeric specifying the learning rate. Scales the step size in the gradient descent procedure.}
 
 \item{intdepth}{integer specifying the maximum depth of each tree.}
+
+\item{n.terminal}{integer specifying the actual minimum number of observations in the terminal nodes of the trees.}
+
+\item{bag.frac}{the fraction of the training set observations randomly selected to propose the next tree in the expansion.}
 }
 \value{
 list of 2:
@@ -64,6 +68,11 @@ While boosting, basis functions are iteratively adding in a greedy fashion
 so that each additional basis function further reduces the selected loss function.
 Gaussian distribution (squared error) is used.
 \code{ntrees}, \code{shrinkage}, \code{intdepth} are parameters for model tuning.
+\code{bag.frac} introduces randomnesses into the model fit.
+If \code{bag.frac} < 1 then running the same model twice will result in similar but different fits.
+Number of specimens in train sample must be enough to provide the minimum number of observations in terminal nodes.I.e.
+\cr(1-1/\code{n.crossval})*\code{bag.frac} > \code{n.terminal}.
+\cr
 See \code{\link{gbm}} for details.
 }
 \examples{
